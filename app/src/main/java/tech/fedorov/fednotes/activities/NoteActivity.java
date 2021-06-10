@@ -10,6 +10,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.text.SimpleDateFormat;
@@ -26,6 +27,8 @@ public class NoteActivity extends AppCompatActivity {
     private EditText title;
     private EditText inputField;
     private TextView dateTime;
+
+    private Note alreadyAvailableNote;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,6 +57,21 @@ public class NoteActivity extends AppCompatActivity {
             }
         });
 
+        if (getIntent().getBooleanExtra("isViewOrUpdate", false)) {
+            alreadyAvailableNote = (Note) getIntent().getSerializableExtra("note");
+            setViewOrUpdateNote();
+        } else if (savedInstanceState != null && savedInstanceState.containsKey("alreadyAvailableNote")) {
+            alreadyAvailableNote = (Note) savedInstanceState.getSerializable("alreadyAvailableNote");
+            setViewOrUpdateNote();
+        }
+
+    }
+
+    private void setViewOrUpdateNote() {
+        title.setText(alreadyAvailableNote.getTitle());
+        inputField.setText(alreadyAvailableNote.getNoteBody());
+        dateTime.setText(alreadyAvailableNote.getDateTime());
+
     }
 
     private void saveNote() {
@@ -77,6 +95,10 @@ public class NoteActivity extends AppCompatActivity {
         note.setDateTime(dateTime.getText().toString());
         note.setTitle(title.getText().toString());
         note.setNoteBody(inputField.getText().toString());
+
+        if (alreadyAvailableNote != null) {
+            note.setId(alreadyAvailableNote.getId());
+        }
 
         @SuppressLint("StaticFieldLeak")
         class SaveNote extends AsyncTask<Void, Void, Void> {
@@ -103,5 +125,13 @@ public class NoteActivity extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd.MM.yyyy HH:mm:ss", Locale.getDefault());
         String currentDateTime = sdf.format(new Date());
         return currentDateTime;
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (alreadyAvailableNote != null) {
+            outState.putSerializable("alreadyAvailableNote", alreadyAvailableNote);
+        }
     }
 }

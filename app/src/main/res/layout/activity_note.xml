@@ -79,6 +79,8 @@
         android:textColorHint="@color/hint"
         android:textCursorDrawable="@drawable/cursor_color"
         android:textSize="20sp"
+        android:linksClickable="true"
+        android:textColorLink="@color/links"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

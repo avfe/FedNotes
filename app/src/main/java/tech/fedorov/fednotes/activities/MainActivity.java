@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,21 +21,30 @@ import tech.fedorov.fednotes.R;
 import tech.fedorov.fednotes.adapters.ListNotesAdapter;
 import tech.fedorov.fednotes.database.NotesDB;
 import tech.fedorov.fednotes.entities.Note;
+import tech.fedorov.fednotes.listeners.NotesListener;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NotesListener {
     private EditText searchField;
     private ImageView addButton;
     private RecyclerView recyclerView;
     private List<Note> listNotes;
     private ListNotesAdapter listNotesAdapter;
+    private int noteClickedPosition = -1;
 
     private final int SPAN_COUNT = 2;
 
     public static final int CODE_ADD_NOTE = 1;
+    public static final int CODE_UPDATE_NOTE = 2;
+    public static final int CODE_SHOW_NOTE = 3;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (savedInstanceState != null && savedInstanceState.containsKey("noteClickedPosition")) {
+            noteClickedPosition = (int) savedInstanceState.getInt("noteClickedPosition");
+        }
 
         searchField = findViewById(R.id.search_field);
         addButton = findViewById(R.id.add_button);
@@ -44,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
                 new StaggeredGridLayoutManager(SPAN_COUNT, StaggeredGridLayoutManager.VERTICAL)
         );
         listNotes = new ArrayList<>();
-        listNotesAdapter = new ListNotesAdapter(listNotes);
+        listNotesAdapter = new ListNotesAdapter(listNotes, this);
         recyclerView.setAdapter(listNotesAdapter);
 
         searchField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -66,10 +76,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        getNotes();
+        getNotes(CODE_SHOW_NOTE);
     }
 
-    private void getNotes() {
+    @Override
+    public void onNoteClicked(Note note, int position) {
+        noteClickedPosition = position;
+        Intent intent = new Intent(getApplicationContext(), NoteActivity.class);
+        intent.putExtra("isViewOrUpdate", true);
+        intent.putExtra("note", note);
+        startActivityForResult(intent, CODE_UPDATE_NOTE);
+    }
+
+    private void getNotes(final int requestCode) {
 
         @SuppressLint("StaticFieldLeak")
         class GetNotes extends AsyncTask<Void, Void, List<Note>> {
@@ -82,14 +101,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             protected void onPostExecute(List<Note> notes) {
                 super.onPostExecute(notes);
-                if (listNotes.size() == 0) {
+
+                if (requestCode == CODE_SHOW_NOTE) {
                     listNotes.addAll(notes);
                     listNotesAdapter.notifyDataSetChanged();
-                } else {
+                } else if (requestCode == CODE_ADD_NOTE) {
                     listNotes.add(0, notes.get(0));
                     listNotesAdapter.notifyItemInserted(0);
+                    recyclerView.smoothScrollToPosition(0);
+                } else if (requestCode == CODE_UPDATE_NOTE) {
+                    listNotes.remove(noteClickedPosition);
+                    listNotes.add(noteClickedPosition, notes.get(noteClickedPosition));
+                    listNotesAdapter.notifyItemChanged(noteClickedPosition);
                 }
-                recyclerView.smoothScrollToPosition(0);
             }
         }
 
@@ -100,7 +124,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CODE_ADD_NOTE && resultCode == RESULT_OK) {
-            getNotes();
+            getNotes(CODE_ADD_NOTE);
+        } else if (requestCode == CODE_UPDATE_NOTE && resultCode == RESULT_OK) {
+            if (data != null) {
+                getNotes(CODE_UPDATE_NOTE);
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (noteClickedPosition != -1) {
+            outState.putInt("noteClickedPosition", noteClickedPosition);
         }
     }
 }
