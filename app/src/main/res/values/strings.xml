@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">FedNotes</string>
+    <string name="search_notes">Search notes</string>
+    <string name="logo">FedNotes</string>
+    <string name="search_icon_description">Search icon</string>
+    <string name="empty" />
+</resources>
