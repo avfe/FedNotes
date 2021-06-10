@@ -1,5 +1,7 @@
 package tech.fedorov.fednotes.adapters;
 
+import android.os.Looper;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import tech.fedorov.fednotes.R;
 import tech.fedorov.fednotes.entities.Note;
@@ -19,10 +24,13 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.Note
 
     private List<Note> listNotes;
     private NotesListener notesListener;
+    private Timer timer;
+    private List<Note> notesSource;
 
     public ListNotesAdapter(List<Note> listNotes, NotesListener notesListener) {
         this.listNotes = listNotes;
         this.notesListener = notesListener;
+        notesSource = listNotes;
     }
 
     @NonNull
@@ -73,6 +81,39 @@ public class ListNotesAdapter extends RecyclerView.Adapter<ListNotesAdapter.Note
             title.setText(note.getTitle());
             inputField.setText(note.getNoteBody());
             dateTime.setText(note.getDateTime());
+        }
+    }
+
+    public void searchNotes(final String searchKeyword) {
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (searchKeyword.trim().isEmpty()) {
+                    listNotes = notesSource;
+                } else {
+                    ArrayList<Note> tmp = new ArrayList<>();
+                    for (Note note: notesSource) {
+                        if (note.getTitle().toLowerCase().contains(searchKeyword.toLowerCase())
+                        || note.getNoteBody().toLowerCase().contains(searchKeyword.toLowerCase())) {
+                            tmp.add(note);
+                        }
+                    }
+                    listNotes = tmp;
+                }
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyDataSetChanged();
+                    }
+                });
+            }
+        }, 500);
+    }
+
+    public void cancelTimer() {
+        if (timer != null) {
+            timer.cancel();
         }
     }
 }
