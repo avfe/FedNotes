@@ -9,4 +9,8 @@
     <string name="type_note_here">Type note here...</string>
     <string name="title_cant_be_empty">The note must contain a title.</string>
     <string name="note_cant_be_empty">Note can\'t be empty.</string>
+    <string name="delete_note">Delete note</string>
+    <string name="are_you_sure_you_want_to_delete_this_note">Are you sure you want to delete this note?</string>
+    <string name="delete">DELETE</string>
+    <string name="cancel">CANCEL</string>
 </resources>

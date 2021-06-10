@@ -16,7 +16,10 @@
     <color name="plus">#e5e5e5</color>
     <color name="back">#e5e5e5</color>
     <color name="done">#e5e5e5</color>
+    <color name="delete">#D30000</color>
     <color name="cursor">#FF8400</color>
+    <color name="cancel">#FF8400</color>
     <color name="add_button">#FF8400</color>
     <color name="links">#FF8400</color>
+    <color name="delete_alert">#191919</color>
 </resources>

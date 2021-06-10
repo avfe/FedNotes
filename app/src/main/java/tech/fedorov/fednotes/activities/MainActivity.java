@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
             }
         });
 
-        getNotes(CODE_SHOW_NOTE);
+        getNotes(CODE_SHOW_NOTE, false);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
         startActivityForResult(intent, CODE_UPDATE_NOTE);
     }
 
-    private void getNotes(final int requestCode) {
+    private void getNotes(final int requestCode, final boolean isNoteDeleted) {
 
         @SuppressLint("StaticFieldLeak")
         class GetNotes extends AsyncTask<Void, Void, List<Note>> {
@@ -111,8 +111,12 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
                     recyclerView.smoothScrollToPosition(0);
                 } else if (requestCode == CODE_UPDATE_NOTE) {
                     listNotes.remove(noteClickedPosition);
-                    listNotes.add(noteClickedPosition, notes.get(noteClickedPosition));
-                    listNotesAdapter.notifyItemChanged(noteClickedPosition);
+                    if (isNoteDeleted) {
+                        listNotesAdapter.notifyItemRemoved(noteClickedPosition);
+                    } else {
+                        listNotes.add(noteClickedPosition, notes.get(noteClickedPosition));
+                        listNotesAdapter.notifyItemChanged(noteClickedPosition);
+                    }
                 }
             }
         }
@@ -124,10 +128,10 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CODE_ADD_NOTE && resultCode == RESULT_OK) {
-            getNotes(CODE_ADD_NOTE);
+            getNotes(CODE_ADD_NOTE, false);
         } else if (requestCode == CODE_UPDATE_NOTE && resultCode == RESULT_OK) {
             if (data != null) {
-                getNotes(CODE_UPDATE_NOTE);
+                getNotes(CODE_UPDATE_NOTE, data.getBooleanExtra("isNoteDeleted", false));
             }
         }
     }

@@ -2,15 +2,19 @@ package tech.fedorov.fednotes.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.text.SimpleDateFormat;
@@ -24,9 +28,11 @@ import tech.fedorov.fednotes.entities.Note;
 public class NoteActivity extends AppCompatActivity {
     private ImageButton backButton;
     private ImageButton doneButton;
+    private ImageButton deleteButton;
     private EditText title;
     private EditText inputField;
     private TextView dateTime;
+    private AlertDialog deleteAlert;
 
     private Note alreadyAvailableNote;
 
@@ -40,6 +46,7 @@ public class NoteActivity extends AppCompatActivity {
         title = findViewById(R.id.title);
         inputField = findViewById(R.id.input_field);
         dateTime = findViewById(R.id.date_time);
+        deleteButton = findViewById(R.id.delete_button);
 
         dateTime.setText(getCurrentTime());
 
@@ -65,6 +72,68 @@ public class NoteActivity extends AppCompatActivity {
             setViewOrUpdateNote();
         }
 
+        if (alreadyAvailableNote != null) {
+            deleteButton.setVisibility(View.VISIBLE);
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showDeleteAlert();
+                }
+            });
+        }
+    }
+
+    private void showDeleteAlert() {
+        if (deleteAlert == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(NoteActivity.this);
+            View view = LayoutInflater.from(this).inflate(
+                    R.layout.delete_note,
+                    (ViewGroup) findViewById(R.id.layout_delete_note)
+            );
+            builder.setView(view);
+            deleteAlert = builder.create();
+            if (deleteAlert.getWindow() != null) {
+                deleteAlert.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+            }
+            view.findViewById(R.id.delete_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    @SuppressLint("StaticFieldLeak")
+                    class DeleteNote extends AsyncTask<Void, Void, Void> {
+
+                        @Override
+                        protected Void doInBackground(Void... voids) {
+                            NotesDB.getDatabase(getApplicationContext())
+                                    .noteDAO()
+                                    .delete(alreadyAvailableNote);
+                            return null;
+                        }
+
+                        @Override
+                        protected void onPostExecute(Void aVoid) {
+                            super.onPostExecute(aVoid);
+                            Intent intent = new Intent();
+                            intent.putExtra("isNoteDeleted", true);
+                            setResult(RESULT_OK, intent);
+                            finish();
+                        }
+                    }
+
+                    new DeleteNote().execute();
+
+                }
+            });
+
+            view.findViewById(R.id.cancel_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    deleteAlert.dismiss();
+                }
+            });
+        }
+
+        deleteAlert.show();
     }
 
     private void setViewOrUpdateNote() {
@@ -133,5 +202,11 @@ public class NoteActivity extends AppCompatActivity {
         if (alreadyAvailableNote != null) {
             outState.putSerializable("alreadyAvailableNote", alreadyAvailableNote);
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        deleteButton.setOnClickListener(null);
     }
 }
