@@ -1,16 +1,20 @@
 package tech.fedorov.fednotes.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.List;
 
 import tech.fedorov.fednotes.R;
-import tech.fedorov.fednotes.activities.NoteActivity;
+import tech.fedorov.fednotes.database.NotesDB;
+import tech.fedorov.fednotes.entities.Note;
 
 public class MainActivity extends AppCompatActivity {
     private EditText searchField;
@@ -43,5 +47,26 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(noteIntent, CODE_ADD_NOTE);
             }
         });
+
+        getNotes();
+    }
+
+    private void getNotes() {
+
+        @SuppressLint("StaticFieldLeak")
+        class GetNotes extends AsyncTask<Void, Void, List<Note>> {
+
+            @Override
+            protected List<Note> doInBackground(Void... voids) {
+                return NotesDB.getDatabase(getApplicationContext()).noteDAO().getNotes();
+            }
+
+            @Override
+            protected void onPostExecute(List<Note> notes) {
+                super.onPostExecute(notes);
+            }
+        }
+
+        new GetNotes().execute();
     }
 }

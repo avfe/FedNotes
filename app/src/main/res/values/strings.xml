@@ -7,4 +7,6 @@
     <string name="add_new_note">Add new note</string>
     <string name="note_title">Note title</string>
     <string name="type_note_here">Type note here...</string>
+    <string name="title_cant_be_empty">The note must contain a title.</string>
+    <string name="note_cant_be_empty">Note can\'t be empty.</string>
 </resources>
