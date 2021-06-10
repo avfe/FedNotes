@@ -9,7 +9,6 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,11 +100,6 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
         });
 
         getNotes(CODE_SHOW_NOTE, false);
-
-        if (savedInstanceState != null && savedInstanceState.containsKey("searchField")) {
-            searchField.setText(savedInstanceState.getString("searchField"));
-            listNotesAdapter.searchNotes(searchField.getText().toString());
-        }
     }
 
     @Override
@@ -169,9 +162,6 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (!searchField.getText().toString().trim().isEmpty()) {
-            outState.putString("searchField", searchField.getText().toString());
-        }
         if (noteClickedPosition != -1) {
             outState.putInt("noteClickedPosition", noteClickedPosition);
         }
