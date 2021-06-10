@@ -7,11 +7,15 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="background_black">#090909</color>
+    <color name="background">#090909</color>
     <color name="background_note">#222222</color>
     <color name="background_search">#222222</color>
-    <color name="hint_grey">#4e4e4e</color>
-    <color name="text_white">#e5e5e5</color>
+    <color name="hint">#4e4e4e</color>
+    <color name="text">#e5e5e5</color>
+    <color name="logo">#e5e5e5</color>
+    <color name="plus">#e5e5e5</color>
+    <color name="back">#e5e5e5</color>
+    <color name="done">#e5e5e5</color>
     <color name="cursor">#FF8400</color>
     <color name="add_button">#FF8400</color>
 </resources>
