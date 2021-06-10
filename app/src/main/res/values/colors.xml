@@ -13,4 +13,5 @@
     <color name="hint_grey">#4e4e4e</color>
     <color name="text_white">#e5e5e5</color>
     <color name="cursor">#FF8400</color>
+    <color name="add_button">#FF8400</color>
 </resources>
