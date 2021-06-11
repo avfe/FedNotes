@@ -130,15 +130,15 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
                     listNotesAdapter.notifyDataSetChanged();
                 } else if (requestCode == CODE_ADD_NOTE) {
                     listNotes.add(0, notes.get(0));
-                    listNotesAdapter.notifyItemInserted(0);
+                    listNotesAdapter.notifyDataSetChanged();
                     recyclerView.smoothScrollToPosition(0);
                 } else if (requestCode == CODE_UPDATE_NOTE) {
                     listNotes.remove(noteClickedPosition);
                     if (isNoteDeleted) {
-                        listNotesAdapter.notifyItemRemoved(noteClickedPosition);
+                        listNotesAdapter.notifyDataSetChanged();
                     } else {
                         listNotes.add(noteClickedPosition, notes.get(noteClickedPosition));
-                        listNotesAdapter.notifyItemChanged(noteClickedPosition);
+                        listNotesAdapter.notifyDataSetChanged();
                     }
                 }
             }
