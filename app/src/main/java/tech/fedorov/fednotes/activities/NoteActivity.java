@@ -208,5 +208,6 @@ public class NoteActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         deleteButton.setOnClickListener(null);
+        doneButton.setOnClickListener(null);
     }
 }
